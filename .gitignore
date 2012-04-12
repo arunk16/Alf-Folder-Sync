@@ -1,0 +1,6 @@
+nbprojects/*
+build/*
+dist/*
+.settings/*
+.project
+.classpath
