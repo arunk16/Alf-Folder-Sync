@@ -32,4 +32,10 @@ public class XPathUtils {
         }       
 		return destinationPath;
 	}
+	
+	public static String changeFileNameExtensionToPDF(String fileName){
+		String pdfFile = fileName.substring(0, fileName.indexOf("."));
+		pdfFile = pdfFile+".pdf";
+		return pdfFile;
+	}
 }

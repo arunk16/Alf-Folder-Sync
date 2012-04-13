@@ -30,5 +30,25 @@ public class Cons {
     
     public static final String PROP_PUBLISH_NATIVE_ONLY ="{ukpn.ukpnDoc.model}publishNativeFormatOnly";
     
+    public static final String EXTN_DOC ="doc";
+    
+    public static final String EXTN_DOCX ="docx";
+    
+    public static final String EXTN_PDF ="pdf";
+    
+    public static final String EXTN_XLS ="xls";
+    
+    public static final String EXTN_XLSX ="xlsx";
+    
+    public static final String CONTENT_FORMAT_DOC ="application/msword";
+    
+    public static final String CONTENT_FORMAT_DOCX ="application/msword";
+    
+    public static final String CONTENT_FORMAT_PDF ="application/pdf";
+    
+    public static final String CONTENT_FORMAT_XLS ="application/vnd.ms-excel";
+    
+    public static final String CONTENT_FORMAT_XLSX ="application/vnd.ms-excel";
+    
     
 }

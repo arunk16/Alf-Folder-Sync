@@ -60,7 +60,13 @@ public class PublishedContentReaderWriter {
                 "{" + Constants.NAMESPACE_CONTENT_MODEL + "}" + name);
         
         // Define the content format for the content we are adding
-        ContentFormat contentFormat = new ContentFormat("text/plain", "UTF-8");
+        ContentFormat contentFormat = null;
+        if(name.endsWith(Cons.EXTN_DOC) || name.endsWith(Cons.EXTN_DOCX))
+        	contentFormat =	new ContentFormat(Cons.CONTENT_FORMAT_DOC, "UTF-8");
+        else if(name.endsWith(Cons.EXTN_XLS) || name.endsWith(Cons.EXTN_XLSX))
+        	contentFormat =	new ContentFormat(Cons.CONTENT_FORMAT_XLS, "UTF-8");
+        else if(name.endsWith(Cons.EXTN_PDF))
+        	contentFormat =	new ContentFormat(Cons.CONTENT_FORMAT_PDF, "UTF-8");
         
         NamedValue[] properties = new NamedValue[]{Utils.createNamedValue(Constants.PROP_NAME, name)};
         CMLCreate create = new CMLCreate("1", parentReference, null, null, null, Constants.TYPE_CONTENT, properties);

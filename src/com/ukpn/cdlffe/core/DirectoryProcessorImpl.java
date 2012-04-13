@@ -126,12 +126,13 @@ public class DirectoryProcessorImpl implements DirectoryProcessor{
                         if(nodes[0].getType().equals(Constants.PROP_CONTENT)) { //content
                                 //check this document available in destination
                         	boolean pdfNeeded = isPdfForPublishedContentNeeded(ref);
-                                if(isNodePresent(repositoryService, destinationFolder, nodeName)){ //update content
-                                        Reference destDocRef = getNodeReferenceByNodeName(repositoryService, destinationFolder, nodeName);
-                                        pcrw.updateContent(contentService, destDocRef, ContentUtils.getContentAsString(content));
-                                } else { //create new document and copy content
-                                        pcrw.createNewContent(contentService, destinationFolder.getPath(), nodeName, ContentUtils.getContentAsString(content));
-                                }        		
+                        	String fileName = pdfNeeded ? XPathUtils.changeFileNameExtensionToPDF(nodeName) : nodeName;
+                            if(isNodePresent(repositoryService, destinationFolder, fileName)){ //update content
+                                     Reference destDocRef = getNodeReferenceByNodeName(repositoryService, destinationFolder, fileName);
+                                     pcrw.updateContent(contentService, destDocRef, ContentUtils.getContentAsString(content));
+                            } else { //create new document and copy content
+                                     pcrw.createNewContent(contentService, destinationFolder.getPath(), fileName, ContentUtils.getContentAsString(content));
+                            }        		
                         } else if(nodes[0].getType().equals(Constants.TYPE_FOLDER)) { //folder
                                 //check if folder exists in destination and create folder to get reference       		
                                 Reference folder = new Reference(Cons.STORE, null, destinationFolder.getPath()+"/cm:"+nodeName);
@@ -292,6 +293,7 @@ public class DirectoryProcessorImpl implements DirectoryProcessor{
 		
 		AuthenticationUtils.startSession(Cons.USERNAME, Cons.PASSWORD);
         String source = "/FFE Cabinet/LIVE - FFE Device Documents/EDF1manuals";
+        //String source = "/FFE Cabinet/LIVE - FFE Device Documents/EDF1SafetyDocs";
         List<String> list =  ExcelDealer.getInstance().getCdlFfeDirectoryMap().get(source);
         
         String sourcePath = XPathUtils.generateSourceFolderXPath(source);
