@@ -9,6 +9,9 @@ public class Cons {
     public static final String USERNAME = "admin";
     public static final String PASSWORD = "admin";
     
+    //public static final String USERNAME = "ukpnadmin";
+    //public static final String PASSWORD = "ukpnadmin";
+    
     /** The store used throughout */
     public static final Store STORE = new Store(Constants.WORKSPACE_STORE, "SpacesStore");
     
