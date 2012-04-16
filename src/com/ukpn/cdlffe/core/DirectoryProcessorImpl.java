@@ -131,7 +131,11 @@ public class DirectoryProcessorImpl implements DirectoryProcessor{
                                      Reference destDocRef = getNodeReferenceByNodeName(repositoryService, destinationFolder, fileName);
                                      pcrw.updateContent(contentService, destDocRef, ContentUtils.getContentAsString(content));
                             } else { //create new document and copy content
-                                     pcrw.createNewContent(contentService, destinationFolder.getPath(), fileName, ContentUtils.getContentAsString(content));
+                                     Reference destRef = pcrw.createNewContent(destinationFolder.getPath(), fileName);
+                                     if(pdfNeeded)
+                                    	 pcrw.createNewContentAsPDF(ref, destRef, fileName);                                   
+                                   	 else
+                                    	 pcrw.writeContentToRepo(contentService, destRef, ContentUtils.getContentAsString(content),fileName);
                             }        		
                         } else if(nodes[0].getType().equals(Constants.TYPE_FOLDER)) { //folder
                                 //check if folder exists in destination and create folder to get reference       		

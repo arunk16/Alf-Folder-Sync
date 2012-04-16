@@ -32,22 +32,22 @@ public class PublishedContentReaderWriter {
 	/**
      * Method to create new node and its content under a given folder space.
      *  
-     * @param contentService    the content web service
-     * @param content           the content itself
+     * @param parentSpace   
+     * @param destFileName
      * @return                  a reference to the created content node
      * @throws Exception        
      */
-    protected Reference createNewContent(ContentServiceSoapBindingStub contentService, String space, String name, String contentString) 
+    protected Reference createNewContent(String parentSpace, String destFileName) 
         throws Exception
     {
         // Update name
         //name = System.currentTimeMillis() + "_" + name;
     	//space = "/app:company_home/cm:sample_folder";
     	
-    	if(space == null ||  space.isEmpty())
+    	if(parentSpace == null ||  parentSpace.isEmpty())
     		throw new IllegalArgumentException("space cannot be null");
     	
-    	if(name == null || name.isEmpty())
+    	if(destFileName == null || destFileName.isEmpty())
     		throw new IllegalArgumentException("Name cannot be null");
     	
     	// Get the content service
@@ -56,30 +56,25 @@ public class PublishedContentReaderWriter {
         
         // Create a parent reference, this contains information about the association we are createing to the new content and the
         // parent of the new content (the space retrived from the search)
-        ParentReference parentReference = new ParentReference(Cons.STORE, null, space, Cons.ASSOC_CONTAINS, 
-                "{" + Constants.NAMESPACE_CONTENT_MODEL + "}" + name);
-        
-        // Define the content format for the content we are adding
-        ContentFormat contentFormat = null;
-        if(name.endsWith(Cons.EXTN_DOC) || name.endsWith(Cons.EXTN_DOCX))
-        	contentFormat =	new ContentFormat(Cons.CONTENT_FORMAT_DOC, "UTF-8");
-        else if(name.endsWith(Cons.EXTN_XLS) || name.endsWith(Cons.EXTN_XLSX))
-        	contentFormat =	new ContentFormat(Cons.CONTENT_FORMAT_XLS, "UTF-8");
-        else if(name.endsWith(Cons.EXTN_PDF))
-        	contentFormat =	new ContentFormat(Cons.CONTENT_FORMAT_PDF, "UTF-8");
-        
-        NamedValue[] properties = new NamedValue[]{Utils.createNamedValue(Constants.PROP_NAME, name)};
+        ParentReference parentReference = new ParentReference(Cons.STORE, null, parentSpace, Cons.ASSOC_CONTAINS, 
+                "{" + Constants.NAMESPACE_CONTENT_MODEL + "}" + destFileName);
+              
+        NamedValue[] properties = new NamedValue[]{Utils.createNamedValue(Constants.PROP_NAME, destFileName)};
         CMLCreate create = new CMLCreate("1", parentReference, null, null, null, Constants.TYPE_CONTENT, properties);
         CML cml = new CML();
         cml.setCreate(new CMLCreate[]{create});
         UpdateResult[] result = WebServiceFactory.getRepositoryService().update(cml);     
         
         Reference newContentNode = result[0].getDestination();
-        Content content = contentService.write(newContentNode, Constants.PROP_CONTENT, contentString.getBytes(), contentFormat);
+        return newContentNode;
+    }
+    
+    protected Reference writeContentToRepo(ContentServiceSoapBindingStub contentService,Reference ref,String contentString,String fileName) throws Exception{    	
+        Content content = contentService.write(ref, Constants.PROP_CONTENT, contentString.getBytes(), getContentFormatByFileName(fileName));
         
         // Get a reference to the newly created content
         return content.getNode();
-    } 
+    }
     
     /**
      * Method to update content of the node under given folder space.
@@ -156,8 +151,22 @@ public class PublishedContentReaderWriter {
     	return ref;
     }
     
-    protected void createNewContentAsPDF() throws Exception{
-    	//WebServiceFactory.getContentService().transform(source, property, destinationReference, destinationProperty, destinationFormat)
+    private ContentFormat getContentFormatByFileName(String name){
+    	// Define the content format for the content we are adding
+        ContentFormat contentFormat = null;
+        if(name.endsWith(Cons.EXTN_DOC) || name.endsWith(Cons.EXTN_DOCX))
+        	contentFormat =	new ContentFormat(Cons.CONTENT_FORMAT_DOC, "UTF-8");
+        else if(name.endsWith(Cons.EXTN_XLS) || name.endsWith(Cons.EXTN_XLSX))
+        	contentFormat =	new ContentFormat(Cons.CONTENT_FORMAT_XLS, "UTF-8");
+        else if(name.endsWith(Cons.EXTN_PDF))
+        	contentFormat =	new ContentFormat(Cons.CONTENT_FORMAT_PDF, "UTF-8");
+        
+        return contentFormat;
+    }
+    
+    protected void createNewContentAsPDF(Reference source, Reference dest, String destFileName) throws Exception{
+    	WebServiceFactory.getContentService().transform(source, Constants.PROP_CONTENT, dest, 
+    			Constants.PROP_CONTENT, getContentFormatByFileName(destFileName));
     }
     
     public static void main(String []args) throws Exception{

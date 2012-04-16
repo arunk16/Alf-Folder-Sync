@@ -46,9 +46,9 @@ public class Cons {
     
     public static final String CONTENT_FORMAT_PDF ="application/pdf";
     
-    public static final String CONTENT_FORMAT_XLS ="application/vnd.ms-excel";
+    public static final String CONTENT_FORMAT_XLS ="application/ms-excel";
     
-    public static final String CONTENT_FORMAT_XLSX ="application/vnd.ms-excel";
+    public static final String CONTENT_FORMAT_XLSX ="application/ms-excel";
     
     
 }
