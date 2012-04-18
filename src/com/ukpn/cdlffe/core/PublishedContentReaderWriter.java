@@ -1,10 +1,14 @@
 package com.ukpn.cdlffe.core;
 
+import org.alfresco.repo.content.MimetypeMap;
+import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.webservice.content.Content;
 import org.alfresco.webservice.content.ContentServiceSoapBindingStub;
 import org.alfresco.webservice.repository.UpdateResult;
 import org.alfresco.webservice.types.CML;
+import org.alfresco.webservice.types.CMLCopy;
 import org.alfresco.webservice.types.CMLCreate;
+import org.alfresco.webservice.types.CMLWriteContent;
 import org.alfresco.webservice.types.ContentFormat;
 import org.alfresco.webservice.types.NamedValue;
 import org.alfresco.webservice.types.ParentReference;
@@ -59,7 +63,13 @@ public class PublishedContentReaderWriter {
         ParentReference parentReference = new ParentReference(Cons.STORE, null, parentSpace, Cons.ASSOC_CONTAINS, 
                 "{" + Constants.NAMESPACE_CONTENT_MODEL + "}" + destFileName);
               
-        NamedValue[] properties = new NamedValue[]{Utils.createNamedValue(Constants.PROP_NAME, destFileName)};
+//        NamedValue[] properties = new NamedValue[]{Utils.createNamedValue(Constants.PROP_NAME, destFileName),
+//        		Utils.createNamedValue(Constants.PROP_CONTENT,"" )};
+        
+        NamedValue[] properties = new NamedValue[] {
+        		new NamedValue(Constants.PROP_NAME.toString(), false, destFileName, null),
+                new NamedValue(Constants.PROP_CONTENT.toString(), false, new ContentData(null, getMimeTypeByFileName(destFileName), 0L, "UTF-8").toString(), null)
+        };
         CMLCreate create = new CMLCreate("1", parentReference, null, null, null, Constants.TYPE_CONTENT, properties);
         CML cml = new CML();
         cml.setCreate(new CMLCreate[]{create});
@@ -70,10 +80,38 @@ public class PublishedContentReaderWriter {
     }
     
     protected Reference writeContentToRepo(ContentServiceSoapBindingStub contentService,Reference ref,String contentString,String fileName) throws Exception{    	
-        Content content = contentService.write(ref, Constants.PROP_CONTENT, contentString.getBytes(), getContentFormatByFileName(fileName));
+        //Content content = contentService.write(ref, Constants.PROP_CONTENT, contentString.getBytes(), getContentFormatByFileName(fileName));
+        CMLWriteContent write = new CMLWriteContent();
+        write.setWhere(new Predicate(new Reference[]{ref}, Cons.STORE, null));
+        write.setProperty(Constants.PROP_CONTENT.toString());
+//        ContentFormat format = new ContentFormat(MimetypeMap.MIMETYPE_TEXT_PLAIN, "UTF-8");
+        write.setFormat(getContentFormatByFileName(fileName));
+        write.setContent(contentString.getBytes());
         
+        CML cml = new CML();
+        cml.setWriteContent(new CMLWriteContent[]{write});
+
+        UpdateResult[] result = WebServiceFactory.getRepositoryService().update(cml); 
+        Reference reference = result[0].getDestination();
         // Get a reference to the newly created content
-        return content.getNode();
+        return reference;
+    }
+    
+    protected ParentReference getParentReference(String parentSpace, String destFileName) throws Exception{
+    	ParentReference parentReference = new ParentReference(Cons.STORE, null, parentSpace, Cons.ASSOC_CONTAINS, 
+                "{" + Constants.NAMESPACE_CONTENT_MODEL + "}" + destFileName);
+    	return parentReference;
+    }
+    
+    protected void copyNativeDocToDestination(ParentReference parent,Reference ref) throws Exception{
+    	CMLCopy copy = new CMLCopy();
+        copy.setTo(parent);
+        copy.setWhere(new Predicate(new Reference[]{ref}, Cons.STORE, null));
+        
+        CML cml = new CML();
+        cml.setCopy(new CMLCopy[]{copy});
+        
+        WebServiceFactory.getRepositoryService().update(cml); 
     }
     
     /**
@@ -155,11 +193,24 @@ public class PublishedContentReaderWriter {
     	// Define the content format for the content we are adding
         ContentFormat contentFormat = null;
         if(name.endsWith(Cons.EXTN_DOC) || name.endsWith(Cons.EXTN_DOCX))
-        	contentFormat =	new ContentFormat(Cons.CONTENT_FORMAT_DOC, "UTF-8");
+        	contentFormat =	new ContentFormat(MimetypeMap.MIMETYPE_WORD, "UTF-8");
         else if(name.endsWith(Cons.EXTN_XLS) || name.endsWith(Cons.EXTN_XLSX))
-        	contentFormat =	new ContentFormat(Cons.CONTENT_FORMAT_XLS, "UTF-8");
+        	contentFormat =	new ContentFormat(MimetypeMap.MIMETYPE_EXCEL, "UTF-8");
         else if(name.endsWith(Cons.EXTN_PDF))
-        	contentFormat =	new ContentFormat(Cons.CONTENT_FORMAT_PDF, "UTF-8");
+        	contentFormat =	new ContentFormat(MimetypeMap.MIMETYPE_PDF, "UTF-8");
+        
+        return contentFormat;
+    }
+    
+    private String getMimeTypeByFileName(String name) {
+    	// Define the content format for the content we are adding
+        String contentFormat = null;
+        if(name.endsWith(Cons.EXTN_DOC) || name.endsWith(Cons.EXTN_DOCX))
+        	contentFormat =	MimetypeMap.MIMETYPE_WORD;
+        else if(name.endsWith(Cons.EXTN_XLS) || name.endsWith(Cons.EXTN_XLSX))
+        	contentFormat =	MimetypeMap.MIMETYPE_EXCEL;
+        else if(name.endsWith(Cons.EXTN_PDF))
+        	contentFormat =	MimetypeMap.MIMETYPE_PDF;
         
         return contentFormat;
     }

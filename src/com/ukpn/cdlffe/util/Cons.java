@@ -43,15 +43,5 @@ public class Cons {
     
     public static final String EXTN_XLSX ="xlsx";
     
-    public static final String CONTENT_FORMAT_DOC ="application/msword";
-    
-    public static final String CONTENT_FORMAT_DOCX ="application/msword";
-    
-    public static final String CONTENT_FORMAT_PDF ="application/pdf";
-    
-    public static final String CONTENT_FORMAT_XLS ="application/ms-excel";
-    
-    public static final String CONTENT_FORMAT_XLSX ="application/ms-excel";
-    
     
 }

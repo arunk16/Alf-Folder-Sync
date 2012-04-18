@@ -135,7 +135,8 @@ public class DirectoryProcessorImpl implements DirectoryProcessor{
                                      if(pdfNeeded)
                                     	 pcrw.createNewContentAsPDF(ref, destRef, fileName);                                   
                                    	 else
-                                    	 pcrw.writeContentToRepo(contentService, destRef, ContentUtils.getContentAsString(content),fileName);
+                                   		pcrw.writeContentToRepo(contentService, destRef, ContentUtils.getContentAsString(content),fileName);
+                                   		//pcrw.copyNativeDocToDestination(pcrw.getParentReference(destinationFolder.getPath(), fileName), ref);
                             }        		
                         } else if(nodes[0].getType().equals(Constants.TYPE_FOLDER)) { //folder
                                 //check if folder exists in destination and create folder to get reference       		
