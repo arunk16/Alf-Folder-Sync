@@ -124,20 +124,53 @@ public class DirectoryProcessorImpl implements DirectoryProcessor{
                                                         Constants.PROP_CONTENT);
                     Content content = readResult[0];                   
                         if(nodes[0].getType().equals(Constants.PROP_CONTENT)) { //content
-                                //check this document available in destination
+                        	Reference destDocRef = null;
                         	boolean pdfNeeded = isPdfForPublishedContentNeeded(ref);
-                        	String fileName = pdfNeeded ? XPathUtils.changeFileNameExtensionToPDF(nodeName) : nodeName;
-                            if(isNodePresent(repositoryService, destinationFolder, fileName)){ //update content
-                                     Reference destDocRef = getNodeReferenceByNodeName(repositoryService, destinationFolder, fileName);
-                                     pcrw.updateContent(contentService, destDocRef, ContentUtils.getContentAsString(content));
-                            } else { //create new document and copy content
-                                     Reference destRef = pcrw.createNewContent(destinationFolder.getPath(), fileName);
-                                     if(pdfNeeded)
-                                    	 pcrw.createNewContentAsPDF(ref, destRef, fileName);                                   
-                                   	 else
-                                   		pcrw.writeContentToRepo(contentService, destRef, ContentUtils.getContentAsString(content),fileName);
-                                   		//pcrw.copyNativeDocToDestination(pcrw.getParentReference(destinationFolder.getPath(), fileName), ref);
-                            }        		
+							String fileName = pdfNeeded ? XPathUtils
+									.changeFileNameExtensionToPDF(nodeName)
+									: nodeName;
+							boolean nodePresent = isNodePresent(repositoryService,
+									destinationFolder, fileName);
+                                if (isPublished(ref)) { //published case
+									//check this document available in destination
+									
+									if (nodePresent) { //update content
+										 destDocRef = getNodeReferenceByNodeName(
+												repositoryService,
+												destinationFolder, fileName);
+										pcrw.updateContent(
+												contentService,
+												destDocRef,
+												ContentUtils
+														.getContentAsString(content));
+									} else { //create new document and copy content
+										Reference destRef = pcrw
+												.createNewContent(
+														destinationFolder
+																.getPath(),
+														fileName);
+										if (pdfNeeded)
+											pcrw.createNewContentAsPDF(ref,
+													destRef, fileName);
+										else
+											pcrw.writeContentToRepo(
+													contentService,
+													destRef,
+													ContentUtils.getContentAsString(content),
+													fileName);
+										//pcrw.copyNativeDocToDestination(pcrw.getParentReference(destinationFolder.getPath(), fileName), ref);
+									}
+								} else if(isRetired(ref))  { //retired case
+									
+									if(nodePresent){ //delete the document or rendition in CDL -FFE - target folder 
+										logger.debug("Document "+ fileName + " under "+ sourceFolder + "is detected as retired. Deletion will starting now.");
+										destDocRef = getNodeReferenceByNodeName(
+												repositoryService,
+												destinationFolder, fileName);
+										pcrw.deleteDocument(destDocRef,fileName);
+										logger.debug("Document "+ fileName + " under "+ sourceFolder + "is deleted now.");
+									}
+								}
                         } else if(nodes[0].getType().equals(Constants.TYPE_FOLDER)) { //folder
                                 //check if folder exists in destination and create folder to get reference       		
                                 Reference folder = new Reference(Cons.STORE, null, destinationFolder.getPath()+"/cm:"+nodeName);
@@ -212,6 +245,38 @@ public class DirectoryProcessorImpl implements DirectoryProcessor{
         			String value = prop.getValue();
         			if(value.equals("true"))
         				yes = false;
+        		}
+        	}      		
+       	}
+		return yes;
+	}
+	
+	
+	private boolean isPublished(Reference ref) throws Exception{
+		boolean yes = false;		
+		Node[] nodes = WebServiceFactory.getRepositoryService().get(new Predicate(new Reference[]{ref}, Cons.STORE, null));    	    	
+       	if(nodes[0].getType().equals(Constants.PROP_CONTENT)) { //content
+       		for(NamedValue prop : nodes[0].getProperties()){
+        		if(prop.getName().equals(Cons.PROP_LIFECYCLE_STATE)){
+        			String value = prop.getValue();
+        			if(value.trim().equalsIgnoreCase("Published"))
+        				yes = true;
+        		}
+        	}      		
+       	}
+		return yes;
+	}
+	
+	
+	private boolean isRetired(Reference ref) throws Exception{
+		boolean yes = false;		
+		Node[] nodes = WebServiceFactory.getRepositoryService().get(new Predicate(new Reference[]{ref}, Cons.STORE, null));    	    	
+       	if(nodes[0].getType().equals(Constants.PROP_CONTENT)) { //content
+       		for(NamedValue prop : nodes[0].getProperties()){
+        		if(prop.getName().equals(Cons.PROP_LIFECYCLE_STATE)){
+        			String value = prop.getValue();
+        			if(value.trim().equalsIgnoreCase("Retired"))
+        				yes = true;
         		}
         	}      		
        	}

@@ -9,8 +9,8 @@ public class Cons {
     public static final String USERNAME = "admin";
     public static final String PASSWORD = "admin";
     
-    //public static final String USERNAME = "ukpnadmin";
-    //public static final String PASSWORD = "ukpnadmin";
+//    public static final String USERNAME = "ukpnadmin";
+//    public static final String PASSWORD = "ukpnadmin";
     
     /** The store used throughout */
     public static final Store STORE = new Store(Constants.WORKSPACE_STORE, "SpacesStore");
@@ -32,6 +32,8 @@ public class Cons {
     public static final String CDL_DESTINATION_FOLDER_ALF_PATH = COMPANY_HOME_PATH+"/cm:"+CDL_DESTINATION_ROOT_FOLDER_NAME;
     
     public static final String PROP_PUBLISH_NATIVE_ONLY ="{ukpn.ukpnDoc.model}publishNativeFormatOnly";
+    
+    public  static final String PROP_LIFECYCLE_STATE="{ukpn.ukpnDoc.model}state";
     
     public static final String EXTN_DOC ="doc";
     

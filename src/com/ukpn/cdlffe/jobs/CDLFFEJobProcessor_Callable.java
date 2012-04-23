@@ -4,15 +4,11 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-import org.alfresco.webservice.authentication.AuthenticationResult;
-import org.alfresco.webservice.types.Reference;
 import org.alfresco.webservice.util.AuthenticationUtils;
-import org.alfresco.webservice.util.WebServiceFactory;
 import org.apache.log4j.Logger;
 
 import com.ukpn.cdlffe.core.DirectoryProcessor;
 import com.ukpn.cdlffe.core.DirectoryProcessorFactory;
-import com.ukpn.cdlffe.core.DirectoryProcessorImpl;
 import com.ukpn.cdlffe.util.Cons;
 
 public class CDLFFEJobProcessor_Callable implements Callable<Integer> {

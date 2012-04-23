@@ -8,6 +8,7 @@ import org.alfresco.webservice.repository.UpdateResult;
 import org.alfresco.webservice.types.CML;
 import org.alfresco.webservice.types.CMLCopy;
 import org.alfresco.webservice.types.CMLCreate;
+import org.alfresco.webservice.types.CMLDelete;
 import org.alfresco.webservice.types.CMLWriteContent;
 import org.alfresco.webservice.types.ContentFormat;
 import org.alfresco.webservice.types.NamedValue;
@@ -80,21 +81,22 @@ public class PublishedContentReaderWriter {
     }
     
     protected Reference writeContentToRepo(ContentServiceSoapBindingStub contentService,Reference ref,String contentString,String fileName) throws Exception{    	
-        //Content content = contentService.write(ref, Constants.PROP_CONTENT, contentString.getBytes(), getContentFormatByFileName(fileName));
-        CMLWriteContent write = new CMLWriteContent();
-        write.setWhere(new Predicate(new Reference[]{ref}, Cons.STORE, null));
-        write.setProperty(Constants.PROP_CONTENT.toString());
-//        ContentFormat format = new ContentFormat(MimetypeMap.MIMETYPE_TEXT_PLAIN, "UTF-8");
-        write.setFormat(getContentFormatByFileName(fileName));
-        write.setContent(contentString.getBytes());
-        
-        CML cml = new CML();
-        cml.setWriteContent(new CMLWriteContent[]{write});
-
-        UpdateResult[] result = WebServiceFactory.getRepositoryService().update(cml); 
-        Reference reference = result[0].getDestination();
+        Content content = contentService.write(ref, Constants.PROP_CONTENT, contentString.getBytes("UTF-8"), getContentFormatByFileName(fileName));
+        return content.getNode();
+//        CMLWriteContent write = new CMLWriteContent();
+//        write.setWhere(new Predicate(new Reference[]{ref}, Cons.STORE, null));
+//        write.setProperty(Constants.PROP_CONTENT.toString());
+////        ContentFormat format = new ContentFormat(MimetypeMap.MIMETYPE_TEXT_PLAIN, "UTF-8");
+//        write.setFormat(getContentFormatByFileName(fileName));
+//        write.setContent(contentString.getBytes());
+//        
+//        CML cml = new CML();
+//        cml.setWriteContent(new CMLWriteContent[]{write});
+//
+//        UpdateResult[] result = WebServiceFactory.getRepositoryService().update(cml); 
+//        Reference reference = result[0].getDestination();
         // Get a reference to the newly created content
-        return reference;
+//        return reference;	
     }
     
     protected ParentReference getParentReference(String parentSpace, String destFileName) throws Exception{
@@ -110,6 +112,23 @@ public class PublishedContentReaderWriter {
         
         CML cml = new CML();
         cml.setCopy(new CMLCopy[]{copy});
+        
+        WebServiceFactory.getRepositoryService().update(cml); 
+    }
+    /**
+     * Function to delete and clear document content from an alfresco folder.
+     * 
+     * @param ref
+     * @throws Exception
+     */
+    protected void deleteDocument(Reference ref, String fileName) throws Exception{
+    	logger.debug("Deleting Document : " + fileName);
+    	
+    	CMLDelete delete = new CMLDelete();
+        delete.setWhere(new Predicate(new Reference[]{ref}, Cons.STORE, null));
+        
+        CML cml = new CML();
+        cml.setDelete(new CMLDelete[]{delete});
         
         WebServiceFactory.getRepositoryService().update(cml); 
     }
