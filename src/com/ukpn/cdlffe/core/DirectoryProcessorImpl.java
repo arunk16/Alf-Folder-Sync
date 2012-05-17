@@ -62,13 +62,13 @@ public class DirectoryProcessorImpl implements DirectoryProcessor{
 					if (!folders[i].isEmpty()) {
 						if (i == 1) {
 							subFolder = new Reference(Cons.STORE, null,
-									cdlFolder.getPath() + "/cm:" + folders[i]);
+									cdlFolder.getPath() + "/cm:" + XPathUtils.getWhiteSpaceReplacedForXPathQuery(folders[i]));
 							createdSubFolder = pcrw.createFolder(
 									cdlFolder.getPath(), subFolder, folders[i]);
 						} else {
 							subFolder = new Reference(Cons.STORE, null,
 									createdSubFolder.getPath() + "/cm:"
-											+ folders[i]);
+											+ XPathUtils.getWhiteSpaceReplacedForXPathQuery(folders[i]));
 							createdSubFolder = pcrw.createFolder(
 									createdSubFolder.getPath(), subFolder,
 									folders[i]);
@@ -138,7 +138,12 @@ public class DirectoryProcessorImpl implements DirectoryProcessor{
 										 destDocRef = getNodeReferenceByNodeName(
 												repositoryService,
 												destinationFolder, fileName);
-										pcrw.updateContent(
+										
+										 if(pdfNeeded)
+											 pcrw.createNewContentAsPDF(ref,
+													 destDocRef, fileName);
+										 else
+											 pcrw.updateContent(
 												contentService,
 												destDocRef,
 												ContentUtils
@@ -173,7 +178,7 @@ public class DirectoryProcessorImpl implements DirectoryProcessor{
 								}
                         } else if(nodes[0].getType().equals(Constants.TYPE_FOLDER)) { //folder
                                 //check if folder exists in destination and create folder to get reference       		
-                                Reference folder = new Reference(Cons.STORE, null, destinationFolder.getPath()+"/cm:"+nodeName);
+                                Reference folder = new Reference(Cons.STORE, null, destinationFolder.getPath()+"/cm:"+XPathUtils.getWhiteSpaceReplacedForXPathQuery(nodeName));
                                 Reference createdFolder = pcrw.createFolder(destinationFolder.getPath(),folder, nodeName);
                                 //copy nodes under source folder sub folder to destination
                                 if(hasChildren(repositoryService, ref))
