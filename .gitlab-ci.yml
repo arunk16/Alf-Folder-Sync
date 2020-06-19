@@ -1,0 +1,10 @@
+image: jhipster/jhipster:v6.9.1
+
+stages:
+    - check
+    - build
+    - test
+    - analyze
+    - package
+    - release
+    - deploy
